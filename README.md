@@ -60,9 +60,9 @@ compile "com.android.support:multidex:1.0.0"
 
 Sync your gradle files and rebuild.
 
-#### Troubleshooting Android
+### Troubleshooting Android
 
-##### Android Theme
+#### Android Theme
 
 Depending the configuration of your project you can get an error regarding android:allowBackup and/or android:theme not correct
 
@@ -81,7 +81,7 @@ In that case add the following in your AndroidManifest.xml file
 </manifest>
 ```
 
-##### Material Design
+#### Material Design
 
 If you encounter this error:
 
