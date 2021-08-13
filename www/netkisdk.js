@@ -1,4 +1,4 @@
-cordova.define("cordova-plugin-netkisdk.netkisdk", function(require, exports, module) {
+// cordova.define("cordova-plugin-netkisdk.netkisdk", function(require, exports, module) {
 /*
  *
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -40,6 +40,10 @@ NetkiSDK.prototype.isAvailable = function (successCallback, errorCallback) {
     exec(successCallback, errorCallback, "NetkiSDK", "isAvailable", []);
 }
 
+NetkiSDK.prototype.configure = function(appToken, serviceCode, successCallback, errorCallback) {
+    exec(successCallback, errorCallback, 'NetkiSDK', 'configure', [appToken, serviceCode]);
+}
+
 NetkiSDK.prototype.configureToken = function (tokenApi, successCallback, errorCallback) {
     exec(successCallback, errorCallback, "NetkiSDK", "configureToken", [{"tokenApi": tokenApi}]);
 }
@@ -69,4 +73,4 @@ NetkiSDK.prototype.validateInformation = function (successCallback, errorCallbac
 }
 
 module.exports = new NetkiSDK();
-});
+// });
