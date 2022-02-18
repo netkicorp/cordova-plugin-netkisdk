@@ -1,4 +1,5 @@
 cordova.define("cordova-plugin-netkisdk.netkisdk", function(require, exports, module) {
+
 /*
  *
  * Licensed to the Apache Software Foundation (ASF) under one
