@@ -3,9 +3,17 @@
 #import <Cordova/CDV.h>
 #import <netkisdk_ios/netkisdk_ios.h>
 
+static NSString *const kTokenApiParameter = @"tokenApi";
+static NSString *const kCountryCodeParameter = @"countryCode";
+static NSString *const kDocumentTypeParameter = @"documentType";
+static NSString *const kDocTypeDriverLicense = @"driversLicense";
+static NSString *const kDocTypePassport = @"passport";
+static NSString *const kDocTypeGovernmentId = @"governmentID";
+static NSString *const kDocTypeOther = @"other";
+
 @interface NetkiSDK : CDVPlugin 
 
-- (void)configure:(CDVInvokedUrlCommand *)command;
+- (void)configureToken:(CDVInvokedUrlCommand *)command;
 
 - (void)getCountryList:(CDVInvokedUrlCommand *)command;
 
@@ -29,14 +37,14 @@
 
 @implementation NetkiSDK
 
-- (void)configure:(CDVInvokedUrlCommand *)command {
+- (void)configureToken:(CDVInvokedUrlCommand *)command {
     
-    NSString *appToken = [command.arguments objectAtIndex: 0];
-    NSString *serviceCode = [command.arguments objectAtIndex: 1];
+    NSDictionary *configureJson = [command.arguments objectAtIndex: 0];
+    NSString *clientToken = [configureJson objectForKey:kTokenApiParameter];
     
-    [NetkiClient.sharedClient configureWithClientToken:appToken serviceCode:serviceCode block:^(BOOL success, NSError * _Nullable error) {
+    [NetkiClient.sharedClient configureWithClientToken:clientToken block:^(BOOL success, NSError * _Nullable error) {
         CDVPluginResult* pluginResult = nil;
-        
+
         if (success) {
             pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsBool:true];
         } else {
@@ -47,7 +55,6 @@
             }
         }
         [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-        
     }];
 }
 
@@ -68,19 +75,17 @@
             @"has2dBarcode": [NSString stringWithFormat:@"%s", country.has2dBarcode ? "true" : "false"]
         };
         [jsonCountries addObject:json];
-        
     }
     
     CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsArray:jsonCountries];
-    
+
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-    
 }
 
 - (void)setCountry:(CDVInvokedUrlCommand *)command {
     CDVPluginResult* pluginResult = nil;
     NSDictionary *countryJson = [command.arguments objectAtIndex: 0];
-    NSString *countryCode = countryJson[@"countryCode"];
+    NSString *countryCode = [countryJson objectForKey:kCountryCodeParameter];
     
     NSArray *countries = NetkiClient.sharedClient.context.countries;
 
@@ -104,17 +109,9 @@
 }
 
 - (void)getDocumentsType:(CDVInvokedUrlCommand *)command {
-    
-    NSMutableArray *documentTypes = [NSMutableArray new];
 
-    [documentTypes addObject:@"driversLicense"];
-    
-    [documentTypes addObject:@"passport"];
-    
-    [documentTypes addObject: @"governmentID"];
-    
-    [documentTypes addObject:@"other"];
-    
+    NSArray *documentTypes = @[kDocTypeDriverLicense, kDocTypePassport, kDocTypeGovernmentId, kDocTypeOther];
+
     CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsArray:documentTypes];
     
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
@@ -124,25 +121,24 @@
 - (void)setDocumentType:(CDVInvokedUrlCommand *)command {
     CDVPluginResult* pluginResult = nil;
 
-    NSDictionary *documentType = [command.arguments objectAtIndex: 0];
-    NSString *docType = documentType[@"documentType"];
-    if ([docType isEqualToString:@"driversLicense"]) {
+    NSDictionary *documentTypeJson = [command.arguments objectAtIndex: 0];
+    NSString *docType = [documentTypeJson objectForKey:kDocumentTypeParameter];
+    if ([docType isEqualToString:kDocTypeDriverLicense]) {
         NetkiClient.sharedClient.docType = NTKDocTypeDriversLicense;
         pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-    } else if ([docType isEqualToString:@"passport"]) {
+    } else if ([docType isEqualToString:kDocTypePassport]) {
         NetkiClient.sharedClient.docType = NTKDocTypePassport;
         pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-    } else if ([docType isEqualToString:@"governmentID"]) {
+    } else if ([docType isEqualToString:kDocTypeGovernmentId]) {
         NetkiClient.sharedClient.docType = NTKDocTypeGovernmentID;
         pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-    } else if ([docType isEqualToString:@"other"]) {
+    } else if ([docType isEqualToString:kDocTypeOther]) {
         NetkiClient.sharedClient.docType = NTKDocTypeOther;
         pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
     } else {
         pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR];
     }
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-    
 }
 
 - (void)startIdentificationFlow:(CDVInvokedUrlCommand *)command {
@@ -180,11 +176,8 @@
 }
 
 - (void)cameraControllerDidDismiss {
-    
     [self.commandDelegate sendPluginResult:[CDVPluginResult resultWithStatus:CDVCommandStatus_OK] callbackId:self.callbackId];
     self.callbackId = nil;
-
-
 }
 
 @end
